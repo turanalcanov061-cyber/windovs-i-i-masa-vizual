@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows 11 Pro Simulator</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:"Segoe UI",Arial;
+ overflow:hidden;color:white;
+ background:linear-gradient(135deg,#071d48,#1764a8,#48a5d5);
+}
+.desktop{
+ height:100vh;padding:20px;
+ background:
+ radial-gradient(ellipse at 70% 45%,#38a9e8,transparent 45%),
+ linear-gradient(135deg,#071d48,#123e85);
+}
+.icons{display:flex;flex-direction:column;gap:22px;width:90px}
+.icon{
+ width:80px;text-align:center;cursor:pointer;
+ padding:8px;border-radius:7px;font-size:13px;
+}
+.icon:hover{background:#ffffff30}
+.icon span{display:block;font-size:32px;margin-bottom:5px}
+.taskbar{
+ position:absolute;bottom:0;width:100%;height:55px;
+ background:#182c43dd;backdrop-filter:blur(20px);
+ display:flex;align-items:center;justify-content:center;
+ gap:15px;
+}
+.taskbar button{
+ background:transparent;border:0;color:white;
+ font-size:23px;cursor:pointer;padding:7px;
+ border-radius:7px;
+}
+.taskbar button:hover{background:#ffffff30}
+.clock{position:absolute;right:18px;font-size:12px;text-align:center}
+.window{
+ position:absolute;top:12%;left:20%;
+ width:60%;height:65%;background:#f1f4f9;
+ color:#202020;border-radius:10px;
+ box-shadow:0 15px 50px #0008;
+ overflow:hidden;display:none;
+}
+.titlebar{
+ height:45px;background:#e6eaf0;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 12px;cursor:move;
+}
+.controls button{border:0;padding:8px 13px;cursor:pointer}
+.controls button:hover{background:#ddd}
+.content{padding:20px;height:calc(100% - 45px);overflow:auto}
+.start{
+ position:absolute;bottom:65px;left:50%;
+ transform:translateX(-50%);
+ width:370px;background:#e9eff8;
+ color:#111;border-radius:12px;padding:20px;
+ display:none;box-shadow:0 10px 40px #0008;
+}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.apps div{padding:15px;text-align:center;cursor:pointer;border-radius:8px}
+.apps div:hover{background:#d5e2f5}
+input,textarea{padding:10px;border:1px solid #aaa;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="desktop">
+ <div class="icons">
+  <div class="icon" onclick="openApp('explorer')"><span>📁</span>File Explorer</div>
+  <div class="icon" onclick="openApp('settings')"><span>⚙️</span>Settings</div>
+  <div class="icon" onclick="openApp('edge')"><span>🌐</span>Microsoft Edge</div>
+  <div class="icon" onclick="openApp('notepad')"><span>📝</span>Notepad</div>
+  <div class="icon" onclick="openApp('calc')"><span>🧮</span>Calculator</div>
+ </div>
+</div>
+
+<div class="start" id="start">
+ <input placeholder="Search for apps and settings..." style="width:100%">
+ <h3>Pinned</h3>
+ <div class="apps">
+  <div onclick="openApp('settings')">⚙️<br>Settings</div>
+  <div onclick="openApp('explorer')">📁<br>Explorer</div>
+  <div onclick="openApp('edge')">🌐<br>Edge</div>
+  <div onclick="openApp('notepad')">📝<br>Notepad</div>
+  <div onclick="openApp('calc')">🧮<br>Calculator</div>
+ </div>
+ <hr>
+ <div>👤 User <button onclick="alert('Sign out simulyasiyası')">⏻ Power</button></div>
+</div>
+
+<div class="taskbar">
+ <button onclick="toggleStart()">⊞</button>
+ <button onclick="openApp('explorer')">📁</button>
+ <button onclick="openApp('edge')">🌐</button>
+ <button onclick="openApp('settings')">⚙️</button>
+ <div class="clock" id="clock"></div>
+</div>
+
+<div class="window" id="win">
+ <div class="titlebar" id="titlebar">
+  <b id="winTitle">Application</b>
+  <div class="controls">
+   <button onclick="minimize()">－</button>
+   <button onclick="maximize()">□</button>
+   <button onclick="closeApp()">✕</button>
+  </div>
+ </div>
+ <div class="content" id="content"></div>
+</div>
+
+<script>
+const win=document.getElementById('win');
+const content=document.getElementById('content');
+const title=document.getElementById('winTitle');
+
+function toggleStart(){
+ const s=document.getElementById('start');
+ s.style.display=s.style.display==='block'?'none':'block';
+}
+
+function openApp(app){
+ document.getElementById('start').style.display='none';
+ win.style.display='block';
+
+ const apps={
+ settings:{
+  title:'Settings',
+  html:`<h1>⚙️ Settings</h1>
+  <h3>System</h3>
+  <button onclick="setting('Display')">🖥️ Display</button>
+  <button onclick="setting('Sound')">🔊 Sound</button>
+  <button onclick="setting('Notifications')">🔔 Notifications</button>
+  <button onclick="setting('Power')">🔋 Power</button>
+  <h3>Bluetooth & devices</h3>
+  <button onclick="setting('Bluetooth')">Bluetooth</button>
+  <h3>Network & Internet</h3>
+  <button onclick="setting('Wi-Fi')">Wi-Fi</button>
+  <h3>Personalization</h3>
+  <button onclick="setting('Background')">Background</button>
+  <button onclick="setting('Colors')">Colors</button>
+  <h3>Accounts</h3>
+  <button onclick="setting('User Account')">User Account</button>
+  <h3>Windows Update</h3>
+  <button onclick="setting('Update')">Check for updates</button>`
+ },
+ explorer:{
+  title:'File Explorer',
+  html:`<h1>📁 File Explorer</h1>
+  <p>Quick access</p>
+  <hr>
+  <p>📁 Desktop</p><p>📁 Downloads</p>
+  <p>📁 Documents</p><p>📁 Pictures</p>
+  <p>💽 Local Disk (C:)</p>`
+ },
+ edge:{
+  title:'Microsoft Edge',
+  html:`<h1>🌐 Microsoft Edge</h1>
+  <input id="url" placeholder="Search or enter web address" style="width:80%">
+  <button onclick="searchWeb()">Go</button>
+  <h2>Welcome to Edge</h2>
+  <p>Web browser simulation</p>`
+ },
+ notepad:{
+  title:'Notepad',
+  html:`<h2>📝 Notepad</h2>
+  <textarea style="width:100%;height:75%" placeholder="Start typing..."></textarea>`
+ },
+ calc:{
+  title:'Calculator',
+  html:`<h2>🧮 Calculator</h2>
+  <input id="display" readonly style="width:100%;font-size:25px">
+  <div class="apps">
+  ${['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+','C'].map(x=>`<div onclick="press('${x}')">${x}</div>`).join('')}
+  </div>`
+ }
+ };
+
+ const selected=apps[app];
+ title.textContent=selected.title;
+ content.innerHTML=selected.html;
+}
+
+function setting(name){
+ content.innerHTML=`<button onclick="openApp('settings')">← Back</button>
+ <h1>${name}</h1>
+ <p>${name} settings</p>
+ <p>Bu bölmə Windows simulyasiyasıdır.</p>
+ <label><input type="checkbox"> Enable ${name}</label>`;
+}
+
+function searchWeb(){
+ let q=document.getElementById('url').value;
+ if(q) window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+}
+
+function press(x){
+ let d=document.getElementById('display');
+ if(!d)return;
+ if(x==='C')d.value='';
+ else if(x==='='){
+ try{if(/^[0-9+*/.() -]+$/.test(d.value))d.value=Function('"use strict";return ('+d.value+')')()}
+ catch{d.value='Error'}
+ }else d.value+=x;
+}
+
+function closeApp(){win.style.display='none'}
+function minimize(){win.style.display='none'}
+function maximize(){
+ win.style.width='100%';win.style.height='calc(100% - 55px)';
+ win.style.top='0';win.style.left='0';
+}
+
+function updateClock(){
+ let d=new Date();
+ document.getElementById('clock').innerHTML=
+ d.toLocaleTimeString('az-AZ')+'<br>'+d.toLocaleDateString('az-AZ');
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// Pəncərəni sürüşdürmək
+let drag=false,dx=0,dy=0;
+const bar=document.getElementById('titlebar');
+bar.addEventListener('mousedown',e=>{
+ if(e.target.tagName==='BUTTON')return;
+ drag=true;dx=e.clientX-win.offsetLeft;dy=e.clientY-win.offsetTop;
+});
+document.addEventListener('mousemove',e=>{
+ if(drag){
+ win.style.left=e.clientX-dx+'px';
+ win.style.top=e.clientY-dy+'px';
+ }
+});
+document.addEventListener('mouseup',()=>drag=false);
+</script>
+</body>
+</html>
